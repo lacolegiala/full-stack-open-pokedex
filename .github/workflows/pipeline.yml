@@ -34,7 +34,7 @@ jobs:
     env: 
       COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
       JOINED_COMMIT_MESSAGE: ${{join(github.env.COMMIT_MESSAGES)}}
-    if: ${{ github.event_name == 'push' && !contains(github.env.JOINED_COMMIT_MESSAGE, '#skip')}}
+    if: ${{ github.event_name == 'push' && contains(github.env.JOINED_COMMIT_MESSAGE, '#skip') == false}}
     steps: 
       - uses: actions/checkout@v4
         with:
