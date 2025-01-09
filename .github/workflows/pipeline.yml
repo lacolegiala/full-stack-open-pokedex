@@ -33,7 +33,8 @@ jobs:
     runs-on: ubuntu-20.04
     env: 
       COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
-    if: ${{ github.event_name == 'push' && !contains(github.env.COMMIT_MESSAGES, '#skip')}}
+      JOINED_COMMIT_MESSAGE: ${{join(github.env.COMMIT_MESSAGES)}}
+    if: ${{ github.event_name == 'push' && !contains(github.env.JOINED_COMMIT_MESSAGE, '#skip')}}
     steps: 
       - uses: actions/checkout@v4
         with:
