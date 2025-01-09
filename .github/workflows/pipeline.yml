@@ -20,28 +20,31 @@ jobs:
         run: npm install
       - name: Check style
         run: npm run eslint
-      - name: build
+      - name: Build
         run: npm run build
-      - name: test
+      - name: Test
         run: npm test
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
         run: npx playwright test
+
   tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
-    env: 
-      COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
-      JOINED_COMMIT_MESSAGE: ${{join(github.env.COMMIT_MESSAGES)}}
-    if: ${{ github.event_name == 'push' && contains(github.env.JOINED_COMMIT_MESSAGE, '#skip') == false}}
-    steps: 
-      - uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: '0'
+          fetch-depth: 0
+      - name: Extract and join commit messages
+        id: process_commits
+        run: |
+          COMMIT_MESSAGES=$(git log --pretty=format:%s --no-merges)
+          echo "JOINED_COMMIT_MESSAGES=$(echo $COMMIT_MESSAGES | tr '\n' ' ')" >> $GITHUB_ENV
       - name: Bump version and push tag
+        if: ${{github.event_name == 'push' && !contains(env.JOINED_COMMIT_MESSAGES, '#skip') }}
         uses: anothrNick/github-tag-action@1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: 'patch'
-      
