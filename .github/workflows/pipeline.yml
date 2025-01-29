@@ -48,3 +48,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: 'patch'
+
+  discord_notification:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Discord notification success
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        if: ${{ success() }}
+        with:
+          args: 'The project ${{ env.EVENT_PAYLOAD.repository.full_name }} has been deployed.'
+      - name: Discord notification failure
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        if: ${{ failure() }}
+        uses: Ilshidur/action-discord@master
+        with:  
+          args: 'Commit ${{ steps.commit.name }} broke the build'
