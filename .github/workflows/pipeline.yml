@@ -60,11 +60,11 @@ jobs:
         if: ${{ success() }}
         with:
           args: 'The project ${{ github.repository }} has been deployed.'
+
       - name: Discord notification failure
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        if: ${{ failure() }}
         uses: Ilshidur/action-discord@master
+        if: ${{ failure() }}
         with:  
           args: 'Commit [${{ github.event.after }}](https://github.com/${{ github.repository }}/commit/${{ github.event.after }}) broke the build'
-
