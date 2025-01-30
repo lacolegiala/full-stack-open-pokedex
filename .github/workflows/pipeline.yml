@@ -54,6 +54,14 @@ jobs:
     runs-on: ubuntu-20.04
     if: always()
     steps:
+      - name: Discord notification failure
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        if: ${{ failure() }}
+        with:  
+          args: 'Commit [${{ github.event.after }}](https://github.com/${{ github.repository }}/commit/${{ github.event.after }}) broke the build'
+        
       - name: Discord notification success
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
@@ -62,10 +70,3 @@ jobs:
         with:
           args: 'The project ${{ github.repository }} has been deployed.'
 
-      - name: Discord notification failure
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: Ilshidur/action-discord@master
-        if: ${{ failure() }}
-        with:  
-          args: 'Commit [${{ github.event.after }}](https://github.com/${{ github.repository }}/commit/${{ github.event.after }}) broke the build'
