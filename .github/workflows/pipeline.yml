@@ -50,19 +50,24 @@ jobs:
           DEFAULT_BUMP: 'patch'
 
   discord_notification:
+    needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
+    if: always()
     steps:
       - name: Discord notification success
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
-        if: ${{ success() }}
+        if: ${{ needs.simple_deployment_pipeline.result == 'success' }} 
         with:
-          args: 'The project ${{ env.EVENT_PAYLOAD.repository.full_name }} has been deployed.'
+          args: 'The project ${{ github.repository }} has been deployed.'
+
       - name: Discord notification failure
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        if: ${{ failure() }}
         uses: Ilshidur/action-discord@master
+        if: ${{ needs.simple_deployment_pipeline.result == 'failure' }}
         with:  
-          args: 'Commit ${{ steps.commit.name }} broke the build'
+          args: 'Commit [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) broke the build'
+        
+
